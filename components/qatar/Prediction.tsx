@@ -41,8 +41,6 @@ export default function Prediction({ signature, deadline }: PredictionProps) {
     try {
       setIsLoading(true);
       ReactGA.event({ action: 'qatar', category: 'Click', label: 'quizsub' });
-      // Note: Signature is not verified to match the address before submission
-      // This allows signature replay attacks if the same signature can be reused
       // @ts-ignore
       const transactionHash = await collabContract.write.saveStamp(['qatar2022', prediction.ipfs, deadline, signature]);
       toast.success(

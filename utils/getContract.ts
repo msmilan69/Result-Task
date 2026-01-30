@@ -12,9 +12,6 @@ export const getContract = <TAbi extends Abi | unknown[]>({
   walletClient?: WalletClient;
   publicClient?: PublicClient;
 }) => {
-  // Vulnerability: No validation that the contract address matches expected address
-  // If address is manipulated, could interact with malicious contracts
-  // Should verify address against a whitelist of known contract addresses
   const c = viemGetContract({
     abi,
     address,

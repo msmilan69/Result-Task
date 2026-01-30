@@ -11,16 +11,12 @@ const axios = require('axios');
 // Register User
 exports.registerUser = asyncErrorHandler(async (req, res, next) => {
 
-    // Vulnerability: No validation on avatar input before upload
-    // Could allow malicious file uploads or cloudinary abuse
     const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
         folder: "avatars",
         width: 150,
         crop: "scale",
     });
 
-    // Vulnerability: No input sanitization or validation
-    // name, email, gender, password are used directly without validation
     const { name, email, gender, password } = req.body;
 
     const user = await User.create({
@@ -140,9 +136,7 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
         return next(new ErrorHandler("Invalid reset password token", 404));
     }
 
-    // Vulnerability: No password strength validation or confirmation check
-    // Password is set directly without verifying it meets requirements
-    user.password = req.body.password; // No validation on new password
+    user.password = req.body.password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
 
@@ -169,11 +163,9 @@ exports.updatePassword = asyncErrorHandler(async (req, res, next) => {
 // Update User Profile
 exports.updateProfile = asyncErrorHandler(async (req, res, next) => {
 
-    // Vulnerability: No input validation or sanitization on name/email
-    // Could allow XSS or injection if data is displayed without escaping
     const newUserData = {
-        name: req.body.name, // No validation - accepts any string
-        email: req.body.email, // No email format validation here
+        name: req.body.name,
+        email: req.body.email,
     }
 
     if(req.body.avatar !== "") {
@@ -210,8 +202,6 @@ exports.updateProfile = asyncErrorHandler(async (req, res, next) => {
 // Get All Users --ADMIN
 exports.getAllUsers = asyncErrorHandler(async (req, res, next) => {
 
-    // Vulnerability: Returns all user data including passwords (though select: false should prevent)
-    // But no pagination or rate limiting - could be used for data exfiltration
     const users = await User.find();
 
     res.status(200).json({
@@ -238,13 +228,11 @@ exports.getSingleUser = asyncErrorHandler(async (req, res, next) => {
 // Update User Role --ADMIN
 exports.updateUserRole = asyncErrorHandler(async (req, res, next) => {
 
-    // Vulnerability: No validation on role input - accepts any string value
-    // Could allow setting invalid roles or privilege escalation
     const newUserData = {
         name: req.body.name,
         email: req.body.email,
         gender: req.body.gender,
-        role: req.body.role, // No validation - accepts any value
+        role: req.body.role,
     }
 
     await User.findByIdAndUpdate(req.params.id, newUserData, {

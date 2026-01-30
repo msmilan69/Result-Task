@@ -14,18 +14,14 @@ export function useSignInWithEthereum({ onSuccess }: useSignInWithEthereumProps)
   const signInWithEthereum = useCallback(
     async (address: Address) => {
       try {
-        // Vulnerability: SIWE message doesn't include a nonce
-        // This allows signature replay attacks - the same signature can be reused
-        // until expiration (7 days). Should include server-generated nonce.
         const message = new SiweMessage({
-          domain: window.location.host,
-          address,
-          statement: 'Sign in with Ethereum to the app.',
-          uri: window.location.origin,
-          version: '1',
-          chainId,
-          expirationTime: new Date(Date.now() + 864e5 * 7).toISOString(),
-          // Missing: nonce field for replay protection
+            domain: window.location.host,
+            address,
+            statement: 'Sign in with Ethereum to the app.',
+            uri: window.location.origin,
+            version: '1',
+            chainId,
+            expirationTime: new Date(Date.now() + 864e5 * 7).toISOString(),
         });
         const signature = await signMessageAsync({
           message: message.prepareMessage(),

@@ -11,14 +11,9 @@ exports.isAuthenticatedUser = asyncErrorHandler(async (req, res, next) => {
         return next(new ErrorHandler("Please Login to Access", 401))
     }
 
-    // Vulnerability: JWT verification doesn't check if user still exists
-    // If user is deleted, token remains valid until expiration
-    // Also, no check for token revocation or blacklisting
     const decodedData = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await User.findById(decodedData.id);
     
-    // Vulnerability: If user is null (deleted), req.user will be null but request continues
-    // Should check if user exists before proceeding
     next();
 });
 
