@@ -144,7 +144,7 @@ exports.getPaymentStatus = asyncErrorHandler(async (req, res, next) => {
     const payment = await Payment.findOne({ orderId: req.params.id });
 
     if (!payment) {
-        return next(new ErrorHandler("Payment Details Not Found", 404));
+        return next(new ErrorHandler("Payment Detail Not Found", 404));
     }
 
     const txn = {
