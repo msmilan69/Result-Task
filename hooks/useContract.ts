@@ -19,7 +19,7 @@ export function useContract<TAbi extends Abi>(address?: Address, abi?: TAbi, cha
         walletClient: walletClient as WalletClient,
       });
     } catch (error) {
-      console.error('Failed to get contract', error);
+      console.error('Failed to get contracts', error);
       return null;
     }
   }, [abi, address, publicClient, walletClient]);
