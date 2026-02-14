@@ -1,0 +1,181 @@
+
+# Executive Summary
+
+During the review of the frontend contract interaction layer, several
+critical security oversights were identified. While the code is
+structurally clean and functional, it currently assumes trust in
+user-supplied inputs without validating cryptographic integrity or
+network context.
+
+The most severe issue is the absence of signature verification before
+contract submission. Additionally, contract address handling lacks
+validation safeguards, creating potential misrouting or spoofing risks.
+
+Immediate remediation is strongly recommended before production
+deployment.
+
+
+# Critical Findings
+
+## 1. Signature Is Not Cryptographically Verified
+
+**Location:** `Prediction.tsx`
+
+The component checks only whether `address` and `signature` exist, but
+never validates the authenticity of the signature before contract
+submission.
+
+### Why This Matters
+
+A signature's presence does not guarantee authenticity. The system
+currently:
+
+-   Does not recover the signer from the signature
+-   Does not verify that the recovered address matches the connected
+    wallet
+-   Does not validate the signed message structure
+
+This opens the door to:
+
+-   Signature replay from another user
+-   Submission of stolen signatures
+-   Forged payload usage if the contract lacks internal verification
+
+### Recommended Fix
+
+-   Reconstruct the signed message
+-   Recover the signer using `recoverAddress`
+-   Compare it to the connected wallet
+-   Reject mismatches
+
+Severity: **Critical**
+
+
+
+## 2. Contract Address Is Passed Without Validation
+
+**Location:** `utils/getContract.ts`
+
+The contract address is forwarded directly into `viemGetContract()` with
+no validation.
+
+### Risk Assessment
+
+The function does not:
+
+-   Verify valid Ethereum address format
+-   Reject zero address (`0x000…000`)
+-   Enforce checksum formatting
+-   Confirm the contract exists at that address
+
+Improper validation may lead to interaction with malicious or unintended
+contracts.
+
+### Recommended Fix
+
+-   Validate with `isAddress()`
+-   Reject zero address
+-   Optionally verify deployed bytecode exists
+
+Severity: **Critical**
+
+
+
+# High Severity Findings
+
+## 3. Deadline Is Not Validated Before Submission
+
+**Location:** `Prediction.tsx`
+
+The deadline parameter is passed without validation.
+
+Risks include: - Accepting expired deadlines - Replay vulnerabilities -
+Unnecessary gas expenditure
+
+Severity: **High**
+
+
+
+## 4. IPFS Hash Is Not Validated
+
+**Location:** `Prediction.tsx`
+
+The IPFS hash is submitted without format validation.
+
+Risks include malformed CID submission and unexpected contract behavior.
+
+Severity: **High**
+
+
+
+## 5. Suppressing Type Safety with `@ts-ignore`
+
+**Location:** `Prediction.tsx`
+
+Suppressing TypeScript errors removes static safety checks around
+transaction logic.
+
+Severity: **High**
+
+
+## 6. No Chain ID Verification Before Submission
+
+**Location:** `Prediction.tsx`
+
+Transactions may be submitted to unintended networks due to lack of
+chain validation.
+
+Severity: **High**
+
+
+
+# Medium Severity Findings
+
+## 7. Generic Error Handling
+
+Errors are caught but not categorized. Better error differentiation
+improves security monitoring.
+
+Severity: **Medium**
+
+
+
+## 8. No Submission Guard / Rate Limiting
+
+Repeated rapid submission is possible, increasing gas waste and RPC
+load.
+
+Severity: **Medium**
+
+
+# Overall Risk Assessment
+
+  Category                      Risk Level
+  
+  Authorization Integrity       Critical
+  Contract Interaction Safety   Critical
+  Network Validation            High
+  Input Validation              High
+  UX & Defensive Hardening      Medium
+
+
+
+# Immediate Remediation Priorities
+
+1.  Implement signature recovery and validation\
+2.  Enforce address validation in `getContract()`\
+3.  Add chain ID verification before submission\
+4.  Validate deadline range client-side\
+5.  Remove `@ts-ignore` and fix type mismatches
+
+
+
+# Final Auditor Note
+
+The vulnerabilities stem primarily from trusting frontend state without
+verification.\
+In Web3 systems, all user-controlled inputs must be treated as
+adversarial.
+
+Addressing the above issues will significantly strengthen transaction
+integrity before production deployment.

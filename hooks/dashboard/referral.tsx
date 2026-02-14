@@ -5,7 +5,7 @@ import { fetchInvitationCode } from '@/lib/api-nest';
 import { arcanaInvitationInfoAtom, arcanaPowerVoteAtom } from '@/store/arcana/state';
 import { invitationCountSelector, referralCodeAtom } from '@/store/invite/state';
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash-es';
+import { random } from 'lodash-es';
 import { useCallback, useMemo } from 'react';
 import ReactGA from 'react-ga4';
 import { toast } from 'react-toastify';
@@ -93,7 +93,7 @@ export const useCopyArcanaReferralLink = () => {
     if (typeof window === undefined || !arcanaReferralLink) return;
     ReactGA.event({ category: EventCategory.Global, action: EventName.ShareRefLink, label: 'arcana' });
     const url = encodeURIComponent(arcanaReferralLink);
-    const text = encodeURIComponent(tweetContent[_.random(0, tweetContent.length - 1)]);
+    const text = encodeURIComponent(tweetContent[random(0, tweetContent.length - 1)]);
     window.open('https://twitter.com/intent/tweet?text=' + text + '&url=' + url, '_blank');
   }, [arcanaReferralLink, tweetContent]);
 

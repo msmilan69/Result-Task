@@ -42,6 +42,13 @@ const userSchema = new mongoose.Schema({
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+    passwordChangedAt: Date, // Track password changes
+    status: {
+        type: String,
+        enum: ['active', 'suspended', 'banned'],
+        default: 'active'
+    },
+    lastLoginAt: Date
 });
 
 userSchema.pre("save", async function (next) {

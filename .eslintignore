@@ -1,0 +1,5 @@
+components/poster/html2canvas.min.js
+node_modules
+.next
+out
+public

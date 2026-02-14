@@ -3,7 +3,7 @@ import { Abi, WalletClient } from 'viem';
 import { getContract } from '../utils/getContract';
 import { babtABI, collabABI } from '../abis';
 import { Address, useContractRead, useNetwork, usePublicClient, useWalletClient } from 'wagmi';
-import { BABT_ADDRESSES, COLLAB_ADDRESS } from '../constants/addresses';
+import { BABT_ADDRESSES, COLLAB_ADDRESSES } from '../constants/addresses';
 
 export function useContract<TAbi extends Abi>(address?: Address, abi?: TAbi, chainId?: number) {
   const publicClient = usePublicClient({ chainId });
@@ -39,7 +39,9 @@ export function useBABTBalanceOf({ address }: { address?: Address }) {
 }
 
 export function useCollabContract() {
-  return useContract(COLLAB_ADDRESS, collabABI);
+  const { chain } = useNetwork();
+  const address = useMemo(() => (chain ? COLLAB_ADDRESSES[chain.id] : undefined), [chain]);
+  return useContract(address, collabABI);
 }
 
 

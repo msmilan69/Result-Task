@@ -1,1 +1,59 @@
-{}
+{
+  "../connectors/particalAuth.ts -> @particle-network/auth": {
+    "id": 60552,
+    "files": [
+      "static/chunks/552.4799ef3c64d32fd6.js",
+      "static/chunks/480.ed2b508a0f1340fa.js"
+    ]
+  },
+  "../connectors/particalAuth.ts -> @particle-network/provider": {
+    "id": 71975,
+    "files": [
+      "static/chunks/552.4799ef3c64d32fd6.js",
+      "static/chunks/956.9e6b1f766ab2b3cd.js"
+    ]
+  },
+  "../node_modules/@particle-network/auth/es/index.js -> draggabilly": {
+    "id": 98384,
+    "files": [
+      "static/chunks/384.d0cac0e025f6744e.js"
+    ]
+  },
+  "../node_modules/@wagmi/connectors/dist/walletConnect.js -> @walletconnect/ethereum-provider": {
+    "id": 25914,
+    "files": [
+      "static/chunks/98-256fdc9cfc9ea44c.js",
+      "static/chunks/914.b4f33cbe42b6951a.js"
+    ]
+  },
+  "../node_modules/@wagmi/core/dist/chunk-TSH6VVF4.js -> viem/ens": {
+    "id": 26765,
+    "files": [
+      "static/chunks/765.b1bf92053a75d968.js"
+    ]
+  },
+  "../node_modules/@walletconnect/ethereum-provider/dist/index.es.js -> @walletconnect/modal": {
+    "id": 59343,
+    "files": [
+      "static/chunks/343.11ef5a6371e68de1.js"
+    ]
+  },
+  "../node_modules/@walletconnect/modal/dist/index.js -> @walletconnect/modal-ui": {
+    "id": 41391,
+    "files": [
+      "static/chunks/391.b18cbf91f2e88c07.js"
+    ]
+  },
+  "../node_modules/viem/_esm/actions/public/call.js -> ../../utils/ccip.js": {
+    "id": 10422,
+    "files": [
+      "static/chunks/422.e9e21bd6f67b48d8.js"
+    ]
+  },
+  "../node_modules/viem/_esm/utils/signature/recoverPublicKey.js -> @noble/curves/secp256k1": {
+    "id": 85467,
+    "files": [
+      "static/chunks/467.4f8cc1650bd4a614.js"
+    ]
+  }
+}

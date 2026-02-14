@@ -2,7 +2,7 @@ import Button from '@/components/button';
 import { EventCategory, EventName } from '@/constants/event';
 import { arcanaEditorDownloadDialogOpen, arcanaNotSubmittedListAtom, arcanaSubmittedListAtom } from '@/store/arcana/state';
 import { openLink } from '@/utils';
-import _ from 'lodash-es';
+import { range } from 'lodash-es';
 import { useMemo } from 'react';
 import ReactGA from 'react-ga4';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -36,7 +36,7 @@ export default function MyCreation() {
         {works?.length
           ? works.map((item) => <GalleryItem id={item.id} key={item.id} data={item} isRank50={(item?.rank ?? 999) <= 50} />)
           : null}
-        {_.range(1, (works?.length ?? 0) < 4 ? 5 - (works?.length ?? 0) : 9 - (works?.length ?? 0)).map((v) => (
+        {range(1, (works?.length ?? 0) < 4 ? 5 - (works?.length ?? 0) : 9 - (works?.length ?? 0)).map((v) => (
           <div
             key={v}
             className="flex min-h-[15rem] items-center justify-center rounded-lg border border-gray-550/50 text-6xl text-gray-100 backdrop-blur-lg"

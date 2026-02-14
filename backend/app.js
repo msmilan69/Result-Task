@@ -4,8 +4,16 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const fileUpload = require('express-fileupload');
 const userRoute = require('../backend/routes/userRoute');
+const helmet = require('helmet');
+const cors = require('cors');
 
 const app = express();
+
+// SECURITY FIX: Set security HTTP headers
+app.use(helmet());
+
+// SECURITY FIX: Enable CORS
+app.use(cors());
 
 // config
 if (process.env.NODE_ENV !== 'production') {

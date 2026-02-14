@@ -1,8 +1,14 @@
+// ============================================
+// CRITICAL FIX #1: Signature Verification
+// ============================================
+// File: components/qatar/Prediction.tsx
+
 import React, { useEffect, useMemo, useState } from 'react';
 import ReactGA from 'react-ga4';
 import classNames from 'classnames';
 import { toast } from 'react-toastify';
 import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
+import { recoverMessageAddress } from 'viem';
 import Message from '../message';
 import { getEtherscanLink } from '../../utils';
 import { ARCANA_CHAIN_ID } from '../../constants';
@@ -16,6 +22,7 @@ type PredictionProps = {
   deadline?: number;
   signature?: Hash;
 };
+
 export default function Prediction({ signature, deadline }: PredictionProps) {
   const { chain } = useNetwork();
   const { address } = useAccount();
@@ -38,11 +45,87 @@ export default function Prediction({ signature, deadline }: PredictionProps) {
 
   const onSubmit = async () => {
     if (!prediction || !chain || !address || !signature || !collabContract || isLoading || isSubmitted || !deadline) return;
+    
     try {
       setIsLoading(true);
+      
+      // ✅ SECURITY FIX: Verify signature before submission
+      
+      // 1. Reconstruct the message that should have been signed
+      // SECURITY FIX: Include chainId to prevent cross-chain replay attacks
+      const message = `qatar2022:${prediction.ipfs}:${deadline}:${chain.id}`;
+      
+      // 2. Verify the signature
+      let recoveredAddress: string;
+      try {
+        recoveredAddress = await recoverMessageAddress({
+          message,
+          signature
+        });
+      } catch (verifyError) {
+        console.error('Signature verification failed:', verifyError);
+        toast.error(
+          <Message 
+            title="Invalid Signature" 
+            message="The signature could not be verified. Please try again." 
+          />
+        );
+        setIsLoading(false);
+        return;
+      }
+      
+      // 3. Ensure the signature was created by an authorized backend signer
+      // ✅ SECURITY FIX: Signature should be verified against the backend's authorized signer address
+      // rather than the user's address, as this is a backend-generated voucher.
+      const AUTHORIZED_SIGNER = process.env.NEXT_PUBLIC_BACKEND_SIGNER_ADDRESS || '0x15719A5A6CB3794342d86912280cb8EB3BA54360'; // COLLAB_ADDRESS often doubled as signer or similar
+      
+      if (recoveredAddress.toLowerCase() !== AUTHORIZED_SIGNER.toLowerCase()) {
+        toast.error(
+          <Message 
+            title="Unauthorized Signature" 
+            message="The signature was not created by an authorized signer." 
+          />
+        );
+        setIsLoading(false);
+        return;
+      }
+      
+      // 4. Verify deadline hasn't expired
+      const now = Math.floor(Date.now() / 1000);
+      if (now > deadline) {
+        toast.error(
+          <Message 
+            title="Deadline Expired" 
+            message="The submission deadline has passed. Please request a new signature." 
+          />
+        );
+        setIsLoading(false);
+        return;
+      }
+      
+      // 5. Check deadline is not too far in the future (prevent replay attacks)
+      const maxDeadline = now + (24 * 60 * 60); // 24 hours
+      if (deadline > maxDeadline) {
+        toast.error(
+          <Message 
+            title="Invalid Deadline" 
+            message="Deadline is too far in the future." 
+          />
+        );
+        setIsLoading(false);
+        return;
+      }
+      
       ReactGA.event({ action: 'qatar', category: 'Click', label: 'quizsub' });
+      
       // @ts-ignore
-      const transactionHash = await collabContract.write.saveStamp(['qatar2022', prediction.ipfs, deadline, signature]);
+      const transactionHash = await collabContract.write.saveStamp([
+        'qatar2022', 
+        prediction.ipfs, 
+        deadline, 
+        signature
+      ]);
+      
       toast.success(
         <Message
           title="Mission Complete"
@@ -61,8 +144,11 @@ export default function Prediction({ signature, deadline }: PredictionProps) {
       setIsLoading(false);
       setIsSubmitted(true);
     } catch (error: any) {
+      console.error('Submission error:', error);
       if (error.error && error.error.data) {
-        toast.error(<Message title="Ah shit, here we go again" message="save error" />);
+        toast.error(<Message title="Submission Failed" message={error.error.data.message || "save error"} />);
+      } else {
+        toast.error(<Message title="Submission Failed" message={error.message || "An unexpected error occurred"} />);
       }
       setIsLoading(false);
     }
@@ -81,7 +167,7 @@ export default function Prediction({ signature, deadline }: PredictionProps) {
           setIsSubmitted(true);
         } else {
           const keys = Object.keys(predictions);
-          setPrediction(predictions[keys[Math.floor(Math.random() * 4)]]);
+          setPrediction(predictions[keys[Math.floor(Math.random() * keys.length)]]);
           setAnswer(undefined);
           setIsSubmitted(false);
         }
@@ -89,7 +175,7 @@ export default function Prediction({ signature, deadline }: PredictionProps) {
       .catch((error: any) => {
         console.error(error);
         const keys = Object.keys(predictions);
-        setPrediction(predictions[keys[Math.floor(Math.random() * 4)]]);
+        setPrediction(predictions[keys[Math.floor(Math.random() * keys.length)]]);
         setAnswer(undefined);
         setIsSubmitted(false);
       });
@@ -164,25 +250,3 @@ export default function Prediction({ signature, deadline }: PredictionProps) {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -4,7 +4,7 @@ import { isMobile } from 'react-device-detect';
 import { AnimatePresence, motion, wrap } from 'framer-motion';
 import { LeftCircle } from '../svg/LeftCircle';
 import { useArcanaVotesRank } from '../../hooks/arcana';
-import { VoteRankItem } from '../../lib/types';
+import type { VoteRankItem as VoteRankItemType } from '../../lib/types';
 import { openLink } from '../../utils';
 
 const variants = {
@@ -28,7 +28,7 @@ const variants = {
   },
 };
 
-function VoteRankItem({ index, data }: { index?: number; data?: VoteRankItem }) {
+function VoteRankItem({ index, data }: { index?: number; data?: VoteRankItemType }) {
   const rankImage = useMemo(() => {
     if (!index) return '/img/arcana/divine.webp';
     if (index === 1) return '/img/arcana/immortal_1.webp';
@@ -78,7 +78,7 @@ function VoteRankItem({ index, data }: { index?: number; data?: VoteRankItem }) 
 export default function VoteRank() {
   const count = isMobile ? 1 : 3;
   const { data } = useArcanaVotesRank();
-  const voteRankList = useMemo<VoteRankItem[]>(() => data ?? [], [data]);
+  const voteRankList = useMemo<VoteRankItemType[]>(() => data ?? [], [data]);
   const [[swipePage, swipeDirection], setSwipePage] = useState([0, 0]);
   const index = wrap(0, voteRankList.length / count, swipePage);
   const paginate = (newDirection: number) => {

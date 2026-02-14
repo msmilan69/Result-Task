@@ -4,7 +4,7 @@ import QRCode from 'qrcode';
 import { useAccount } from 'wagmi';
 import classNames from 'classnames';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import html2canvas from './html2canvas.min';
+import html2canvas from 'html2canvas';
 import { posterCaptureAtom, posterStylesAtom } from '@/store/poster/state';
 import { formatMinutes, getSteamGameImage, shortenSteamId } from '@/utils';
 import { GenesisRarity, GenesisClaim } from '@/constants';
@@ -50,7 +50,7 @@ export default function PosterCanvas({ gamerInfo, gamerGames }: { gamerInfo?: Ga
 
   useEffect(() => {
     const capture: HTMLElement | null = document.querySelector('#poster-capture');
-    console.log("*****************************************************************************************************")
+    // @ts-ignore
     html2canvas(capture, {
       useCORS: true,
       allowTaint: true,

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Address } from 'wagmi';
 import { GraphQLClient } from 'graphql-request';
@@ -107,11 +108,16 @@ export const usePowerLevel = <T>(address?: Address) => {
 };
 
 export function useNFTContract({ token, chainId }: { token?: Address; chainId?: number }) {
-  return useContract(token, badgeABI, chainId);
+  const allowed = useMemo(() => chainId === 1 || chainId === 5 || chainId === 56 || chainId === 97, [chainId]);
+  return useContract(allowed ? token : undefined, badgeABI, chainId);
 }
 
 export function useBridgeContract({ chainId }: { chainId?: number }) {
-  const address = chainId === polygon.id ? BADGE_BRIDGE_ADDRESS : BADGE_BRIDGE_ADDRESS_BSC;
+  const address = useMemo(() => {
+    if (chainId === 1) return BADGE_BRIDGE_ADDRESS;
+    if (chainId === 56) return BADGE_BRIDGE_ADDRESS_BSC;
+    return undefined;
+  }, [chainId]);
   return useContract(address, bridgeABI, chainId);
 }
 
